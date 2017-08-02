@@ -35,7 +35,7 @@ REQUIRED_PACKAGES = [
     'numpy >= 1.11.0',
     'six >= 1.10.0',
     'protobuf >= 3.3.0',
-    'tensorflow-tensorboard',
+    'tensorflow-tensorboard >= 0.1.0, < 0.2.0',
 ]
 
 project_name = 'tensorflow'
@@ -60,6 +60,11 @@ if sys.version_info < (3, 4):
 # pylint: disable=line-too-long
 CONSOLE_SCRIPTS = [
     'saved_model_cli = tensorflow.python.tools.saved_model_cli:main',
+    # We need to keep the TensorBoard command, even though the console script
+    # is now declared by the tensorboard pip package. If we remove the
+    # TensorBoard command, pip will inappropriately remove it during install,
+    # even though the command is not removed, just moved to a different wheel.
+    'tensorboard = tensorboard.main:main',
 ]
 # pylint: enable=line-too-long
 

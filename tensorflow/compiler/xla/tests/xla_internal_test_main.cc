@@ -12,19 +12,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+#include "tensorflow/compiler/xla/legacy_flags/debug_options_flags.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/test.h"
 
-#include "tensorflow/core/platform/types.h"
-
-using tensorflow::int64;
-
-// A dummy implementation that fills the output with 0, 1, 2,...
-// to test the custom call implementation of DepthwiseConv2dNative op.
-// TODO(keveman): Test this after adding a real implementation for the kernel.
-extern "C" void DummyDepthwiseConv2dKernel(float* output, void** inputs) {
-  const int64* output_size = reinterpret_cast<const int64*>(inputs[4]);
-  const int64 total_size =
-      output_size[0] * output_size[1] * output_size[2] * output_size[3];
-  for (int64 i = 0; i < total_size; ++i) {
-    *(output + i) = i;
+GTEST_API_ int main(int argc, char** argv) {
+  std::vector<tensorflow::Flag> flag_list;
+  xla::legacy_flags::AppendDebugOptionsFlags(&flag_list);
+  auto usage = tensorflow::Flags::Usage(argv[0], flag_list);
+  if (!tensorflow::Flags::Parse(&argc, argv, flag_list)) {
+    LOG(ERROR) << "\n" << usage;
+    return 2;
   }
+
+  testing::InitGoogleTest(&argc, argv);
+  if (argc > 1) {
+    LOG(ERROR) << "Unknown argument " << argv[1] << "\n" << usage;
+    return 2;
+  }
+  return RUN_ALL_TESTS();
 }
