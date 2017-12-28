@@ -29,7 +29,7 @@ apt-get upgrade
 # Install python dep
 apt-get install python-dev
 # Install bz2 dep
-apt-get install libbz2-dev
+apt-get install libbz2 libbz2-dev
 # Install curses dep
 apt-get install libncurses5 libncurses5-dev
 apt-get install libncursesw5 libncursesw5-dev
