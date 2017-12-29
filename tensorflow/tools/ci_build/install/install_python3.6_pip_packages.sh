@@ -47,8 +47,8 @@ cd Python-3.6.4
 
 ./configure
 make altinstall
-pip3 -V
-which pip3
+# pip3 -V
+# which pip3
 ln -s /usr/local/bin/pip3.6 /usr/local/bin/pip3
 apt-get update
 apt-get upgrade
