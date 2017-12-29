@@ -29,7 +29,7 @@ apt-get upgrade
 # Install python dep
 apt-get install python-dev
 # Install bz2 dep
-apt-get install libbz2 libbz2-dev
+# apt-get install libbz2 libbz2-dev
 # Install curses dep
 apt-get install libncurses5 libncurses5-dev
 apt-get install libncursesw5 libncursesw5-dev
@@ -41,15 +41,18 @@ apt-get install libsqlite3-dev
 set -e
 
 # Install Python 3.6 and dev library
-wget https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz
-tar xvf Python-3.6.1.tar.xz
-cd Python-3.6.1
+wget https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz
+tar xvf Python-3.6.4.tar.xz
+cd Python-3.6.4
 
 ./configure
-make install
+make altinstall
 pip3 -V
 which pip3
-# ln -s /usr/local/bin/pip3.6 /usr/local/bin/pip3
+ln -s /usr/local/bin/pip3.6 /usr/local/bin/pip3
+apt-get update
+apt-get upgrade
+apt-get install libbz2-dev
 
 pip3 install --upgrade virtualenv
 
