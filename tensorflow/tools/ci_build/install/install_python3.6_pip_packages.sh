@@ -41,14 +41,15 @@ apt-get install libsqlite3-dev
 set -e
 
 # Install Python 3.6 and dev library
-wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
-tar xvf Python-3.6.2.tar.xz
-cd Python-3.6.2
+# wget https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
+# tar xvf Python-3.6.2.tar.xz
+# cd Python-3.6.2
 
-./configure
-make altinstall
+# ./configure
+# make altinstall
 # pip3 -V
 # which pip3
+apt-get install python3.6
 ln -s /usr/local/bin/pip3.6 /usr/local/bin/pip3
 apt-get update
 apt-get upgrade
