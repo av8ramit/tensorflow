@@ -20,8 +20,8 @@
 
 # LINT.IfChange
 
-# ppa:jonathonf/python-3.6 is for Python3.6
-add-apt-repository ppa:jonathonf/python-3.6
+# fkrull/deadsnakes is for Python3.6
+add-apt-repository -y ppa:fkrull/deadsnakes
 
 apt-get update
 apt-get upgrade
@@ -41,7 +41,15 @@ apt-get install libsqlite3-dev
 set -e
 
 # Install Python 3.6 and dev library
-apt-get install python3.6
+wget https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz
+tar xvf Python-3.6.1.tar.xz
+cd Python-3.6.1
+
+./configure
+make altinstall
+pip3.6 -V
+which pip3.6
+ln -s /usr/local/bin/pip3.6 /usr/local/bin/pip3
 
 pip3 install --upgrade virtualenv
 
