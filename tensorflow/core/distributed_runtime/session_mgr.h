@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef THIRD_PARTY_TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_SESSION_MGR_H_
-#define THIRD_PARTY_TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_SESSION_MGR_H_
+#ifndef TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_SESSION_MGR_H_
+#define TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_SESSION_MGR_H_
 
 #include <functional>
 
@@ -45,11 +45,12 @@ class SessionMgr {
   ~SessionMgr() {}
 
   // Allocates state for a new session.
-  Status CreateSession(const string& session, const ServerDef& server_def);
+  Status CreateSession(const string& session, const ServerDef& server_def,
+                       bool isolate_session_state);
 
   // Locates the worker session for a given session handle
-  WorkerSession* WorkerSessionForSession(const string& session);
-  WorkerSession* LegacySession();
+  std::shared_ptr<WorkerSession> WorkerSessionForSession(const string& session);
+  std::shared_ptr<WorkerSession> LegacySession();
 
   Status DeleteSession(const string& session);
 
@@ -71,18 +72,19 @@ class SessionMgr {
   // legacy_session_ is deleted. Further, we must ensure that WorkerSession's
   // device_mgr is deleted after WorkerSession's graph_mgr.
 
-  WorkerSession legacy_session_;
+  std::unique_ptr<WorkerCacheInterface> default_worker_cache_;
+  std::shared_ptr<WorkerSession> legacy_session_;
 
   const WorkerCacheFactory worker_cache_factory_;
 
-  WorkerSession* WorkerSessionForSessionUnlocked(const string& session)
-      EXCLUSIVE_LOCKS_REQUIRED(mu_);
+  std::shared_ptr<WorkerSession> WorkerSessionForSessionUnlocked(
+      const string& session) EXCLUSIVE_LOCKS_REQUIRED(mu_);
 
   mutex mu_;
   // A map from session identifier to internal session structure.
-  std::map<string, std::unique_ptr<WorkerSession>> sessions_ GUARDED_BY(mu_);
+  std::map<string, std::shared_ptr<WorkerSession>> sessions_ GUARDED_BY(mu_);
 };
 
 }  // namespace tensorflow
 
-#endif  // THIRD_PARTY_TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_SESSION_MGR_H_
+#endif  // TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_SESSION_MGR_H_

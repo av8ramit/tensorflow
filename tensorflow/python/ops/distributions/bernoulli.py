@@ -29,8 +29,10 @@ from tensorflow.python.ops import random_ops
 from tensorflow.python.ops.distributions import distribution
 from tensorflow.python.ops.distributions import kullback_leibler
 from tensorflow.python.ops.distributions import util as distribution_util
+from tensorflow.python.util.tf_export import tf_export
 
 
+@tf_export("distributions.Bernoulli")
 class Bernoulli(distribution.Distribution):
   """Bernoulli distribution.
 
@@ -125,7 +127,7 @@ class Bernoulli(distribution.Distribution):
           event, target_dtype=dtypes.bool)
 
     # TODO(jaana): The current sigmoid_cross_entropy_with_logits has
-    # inconsistent  behavior for logits = inf/-inf.
+    # inconsistent behavior for logits = inf/-inf.
     event = math_ops.cast(event, self.logits.dtype)
     logits = self.logits
     # sigmoid_cross_entropy_with_logits doesn't broadcast shape,

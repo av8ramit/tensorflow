@@ -50,7 +50,7 @@ class XfeedBuffer {
 // Reusable component for managing the infeed and outfeed queue state.
 class XfeedQueueManager {
  public:
-  XfeedQueueManager() = default;
+  XfeedQueueManager(string queue_name) : queue_name_(queue_name) {}
 
   // Calls the completion callback for any enqueued buffers that have
   // not been dequeued by the runtime, and empties the
@@ -63,7 +63,8 @@ class XfeedQueueManager {
   // called when the buffer will no longer be accessed by the XfeedManager,
   // either as a result of a call to Reset or because the runtime has dequeued
   // and used the buffer.
-  void EnqueueBuffers(tensorflow::gtl::ArraySlice<XfeedBuffer*> buffers);
+  void EnqueueBuffersAtomically(
+      tensorflow::gtl::ArraySlice<XfeedBuffer*> buffers);
 
   // Blocks until the queue is non-empty, then returns the buffer at the head of
   // the queue. Sets the current buffer to be the returned buffer. It is an
@@ -85,6 +86,8 @@ class XfeedQueueManager {
   void ReleaseCurrentBuffer(int32 length, void* data, StatusOr<Shape> shape);
 
  private:
+  const string queue_name_;
+
   tensorflow::mutex mu_;
 
   // Condition variable that is signaled every time a buffer is
@@ -111,8 +114,8 @@ class XfeedManager {
   XfeedQueueManager* outfeed() { return &outfeed_; }
 
  private:
-  XfeedQueueManager infeed_;
-  XfeedQueueManager outfeed_;
+  XfeedQueueManager infeed_ = {"infeed"};
+  XfeedQueueManager outfeed_ = {"outfeed"};
 };
 
 }  // namespace runtime

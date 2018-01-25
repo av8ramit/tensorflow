@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // =============================================================================
-#ifndef THIRD_PARTY_TENSORFLOW_CONTRIB_TENSOR_FOREST_KERNELS_V4_DECISION_TREE_RESOURCE_H_
-#define THIRD_PARTY_TENSORFLOW_CONTRIB_TENSOR_FOREST_KERNELS_V4_DECISION_TREE_RESOURCE_H_
+#ifndef TENSORFLOW_CONTRIB_TENSOR_FOREST_KERNELS_V4_DECISION_TREE_RESOURCE_H_
+#define TENSORFLOW_CONTRIB_TENSOR_FOREST_KERNELS_V4_DECISION_TREE_RESOURCE_H_
 
 #include "tensorflow/contrib/decision_trees/proto/generic_tree_model.pb.h"
 #include "tensorflow/contrib/tensor_forest/kernels/v4/decision_node_evaluator.h"
@@ -31,10 +31,7 @@ namespace tensorforest {
 class DecisionTreeResource : public ResourceBase {
  public:
   // Constructor.
-  explicit DecisionTreeResource(const TensorForestParams& params)
-      : params_(params), decision_tree_(new decision_trees::Model()) {
-    model_op_ = LeafModelOperatorFactory::CreateLeafModelOperator(params_);
-  }
+  explicit DecisionTreeResource(const TensorForestParams& params);
 
   string DebugString() override {
     return strings::StrCat("DecisionTree[size=",
@@ -71,7 +68,7 @@ class DecisionTreeResource : public ResourceBase {
   // Return the TreeNode for the leaf that the example ends up at according
   // to decsion_tree_. Also fill in that leaf's depth if it isn't nullptr.
   int32 TraverseTree(const std::unique_ptr<TensorDataSet>& input_data,
-                     int example, int32* depth) const;
+                     int example, int32* depth, TreePath* path) const;
 
   // Split the given node_id, turning it from a Leaf to a BinaryNode and
   // setting it's split to the given best.  Add new children ids to
@@ -91,4 +88,4 @@ class DecisionTreeResource : public ResourceBase {
 }  // namespace tensorforest
 }  // namespace tensorflow
 
-#endif  // THIRD_PARTY_TENSORFLOW_CONTRIB_TENSOR_FOREST_KERNELS_V4_DECISION_TREE_RESOURCE_H_
+#endif  // TENSORFLOW_CONTRIB_TENSOR_FOREST_KERNELS_V4_DECISION_TREE_RESOURCE_H_

@@ -198,6 +198,9 @@ class Allocator {
   // Fills in 'stats' with statistics collected by this allocator.
   virtual void GetStats(AllocatorStats* stats) { stats->Clear(); }
 
+  // Clears the internal stats except for the `in_use` field.
+  virtual void ClearStats() {}
+
  private:
   // No constructors or destructors are run for simple types
   template <typename T>
@@ -354,8 +357,6 @@ struct AllocatorAttributes {
   bool nic_compatible() const { return value & (0x1 << 1); }
   void set_gpu_compatible(bool v) { value |= (static_cast<int>(v) << 2); }
   bool gpu_compatible() const { return value & (0x1 << 2); }
-  void set_track_sizes(bool v) { value |= (static_cast<int>(v) << 3); }
-  bool track_sizes() const { return value & (0x1 << 3); }
   void Merge(AllocatorAttributes other) { value |= other.value; }
   // Returns true if the fields set in *this is a subset of or equal to
   // those set in other.

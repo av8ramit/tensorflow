@@ -212,6 +212,11 @@ bool LaunchBlasGemv<Eigen::half>::IsSupported() {
   return false;
 }
 
+template <typename T>
+bool ShouldUseGemv(uint64 n) {
+  return (LaunchBlasGemv<T>::IsSupported() && n == 1);
+}
+
 }  // namespace
 
 bool GetCublasAutotuneComputationType(
@@ -339,7 +344,7 @@ struct LaunchMatMul<GPUDevice, T, true /* USE_CUBLAS */> {
           }
         }
         // Try BlasGemvWithProfiling
-        if (LaunchBlasGemv<T>::IsSupported() && n == 1) {
+        if (ShouldUseGemv<T>(n)) {
           LaunchBlasGemv<T>::Compute(ctx, stream, !transpose_a,
                                      transpose_a ? m : k, transpose_a ? k : m,
                                      a_ptr, b_ptr, &c_ptr, &profile_result);
@@ -385,11 +390,17 @@ struct LaunchMatMul<GPUDevice, T, true /* USE_CUBLAS */> {
     //  2) compute type does not support autotune;
     //  3) no algorithm is found;
     //  4) all internal kernels in autotune return invalid results.
+    //  For the following case, we use normal BlasGemv():
+    //  1) We didn't set the use_autotune flag but LaunchBlasGemv is supported
+    //     and n == 1.
+    //  2) We set the use_autotune flag and it picked up BlasGemv() and set the
+    //     algorithm_config.algorithm() to be kDefaultBlasGemv.
     if (!use_autotune || !compute_type_supported || algorithms->empty() ||
         algorithm_config.algorithm() == kNoAlgorithm ||
         algorithm_config.algorithm() == kDefaultBlasGemm ||
         algorithm_config.algorithm() == kDefaultBlasGemv) {
-      if (algorithm_config.algorithm() == kDefaultBlasGemv) {
+      if (algorithm_config.algorithm() == kDefaultBlasGemv ||
+          ShouldUseGemv<T>(n)) {
         // This is a matrix*vector multiply so use GEMV to compute A * b.
         // Here we are multiplying in the natural order, so we have to flip
         // the transposition flag to compensate for the tensor being stored
@@ -524,13 +535,16 @@ struct MatMulFunctor<SYCLDevice, T> {
 
 }  // end namespace functor
 
-#define REGISTER_CPU(T)                                                        \
-  REGISTER_KERNEL_BUILDER(                                                     \
-      Name("MatMul").Device(DEVICE_CPU).TypeConstraint<T>("T"),                \
-      MatMulOp<CPUDevice, T, false /* cublas, ignored for CPU */>);            \
+#define REGISTER_CPU_EIGEN(T)                                                  \
   REGISTER_KERNEL_BUILDER(                                                     \
       Name("MatMul").Device(DEVICE_CPU).TypeConstraint<T>("T").Label("eigen"), \
-      MatMulOp<CPUDevice, T, false /* cublas, ignored for CPU */>)
+      MatMulOp<CPUDevice, T, false /* cublas, ignored for CPU */>);
+
+#define REGISTER_CPU(T)                                             \
+  REGISTER_KERNEL_BUILDER(                                          \
+      Name("MatMul").Device(DEVICE_CPU).TypeConstraint<T>("T"),     \
+      MatMulOp<CPUDevice, T, false /* cublas, ignored for CPU */>); \
+  REGISTER_CPU_EIGEN(T);
 
 #define REGISTER_GPU(T)                                            \
   REGISTER_KERNEL_BUILDER(                                         \
@@ -545,9 +559,14 @@ struct MatMulFunctor<SYCLDevice, T> {
 #if defined(INTEL_MKL)
 // MKL does not support half and int32 types for matrix-multiplication, so
 // register the kernel to use default Eigen based implementations for these
-// types
+// types. Registration for NO-LABEL version is in mkl_matmul_op.cc
+TF_CALL_float(REGISTER_CPU_EIGEN);
+TF_CALL_double(REGISTER_CPU_EIGEN);
 TF_CALL_half(REGISTER_CPU);
+
 TF_CALL_int32(REGISTER_CPU);
+TF_CALL_complex64(REGISTER_CPU_EIGEN);
+TF_CALL_complex128(REGISTER_CPU_EIGEN);
 #else
 TF_CALL_float(REGISTER_CPU);
 TF_CALL_double(REGISTER_CPU);
