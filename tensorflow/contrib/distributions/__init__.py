@@ -85,6 +85,7 @@ from tensorflow.python.ops.distributions.uniform import *
 from tensorflow.python.util.all_util import remove_undocumented
 
 _allowed_symbols = [
+    'auto_correlation',
     'bijectors',
     'Cauchy',
     'ConditionalDistribution',
@@ -96,7 +97,6 @@ _allowed_symbols = [
     'Autoregressive',
     'Binomial',
     'Bernoulli',
-    'BernoulliWithSigmoidProbs',
     'Beta',
     'BetaWithSoftplusConcentration',
     'Categorical',
