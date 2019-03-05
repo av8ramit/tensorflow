@@ -1,6 +1,6 @@
 # Release 9.99.0
 
-<REPLACE THIS TEXT WITH THE RELEASE NOTES>
+* Eight major versions' worth of new features! Awesome!
 
 # Release 1.13.0
 
