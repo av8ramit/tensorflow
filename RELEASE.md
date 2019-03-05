@@ -1,6 +1,6 @@
 # Release 1.A.0
 
-<REPLACE THIS TEXT WITH THE RELEASE NOTES>
+Here are the release notes.
 
 # Release 1.13.0
 
