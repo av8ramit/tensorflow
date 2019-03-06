@@ -1,6 +1,7 @@
 # Release 5.7.0
 
-<REPLACE THIS TEXT WITH THE RELEASE NOTES>
+This release has some new stuff.
+Blah blah blah.
 
 # Release 1.6.0
 
